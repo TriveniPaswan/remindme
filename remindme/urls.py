@@ -1,12 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
+from django.shortcuts import render
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-
 def home(request):
-    return HttpResponse("Reminder Management System API is Live 🚀")
-
+    return render(request, "index.html")
 
 urlpatterns = [
     path('', home),
