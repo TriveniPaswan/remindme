@@ -1,30 +1,78 @@
-# from django.http import HttpResponse
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-# from .serializers import ReminderSerializer
-
-# # Simple homepage view
-# def home(request):
-#     return HttpResponse("Reminder app ka homepage!")
-
-# # API endpoint to create reminder
-# class ReminderCreateView(APIView):
-#     def post(self, request):
-#         serializer = ReminderSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# from django.http import HttpResponse
-
-# def home(request):
-#     return HttpResponse("Reminder app ka homepage!")
-# reminderapp/views.py
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics
+from rest_framework import serializers
+
+from django.contrib.auth.models import User
+from django.db.models import Q
+
 from .models import Reminder
 from .serializers import ReminderSerializer
 
+class RegisterSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+
 class ReminderListCreateView(generics.ListCreateAPIView):
-    queryset = Reminder.objects.all()
     serializer_class = ReminderSerializer
+
+    # manual adding codes JWT Authentication and Permissions
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        queryset = Reminder.objects.filter(user=self.request.user)
+
+        status = self.request.query_params.get('status')
+        date = self.request.query_params.get('date')
+        message = self.request.query_params.get('message')
+        priority = self.request.query_params.get('priority')
+
+        if status:
+            queryset = queryset.filter(status=status)
+
+        if date:
+            queryset = queryset.filter(date=date)
+
+        if message:
+            queryset = queryset.filter(message__icontains=message)
+
+        if priority:
+            queryset = queryset.filter(priority=priority)
+
+        return queryset
+
+
+
+
+class ReminderDeleteView(generics.DestroyAPIView):
+    serializer_class = ReminderSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Reminder.objects.filter(user=self.request.user)
+
+
+class ReminderUpdateView(generics.UpdateAPIView):
+    serializer_class = ReminderSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Reminder.objects.filter(user=self.request.user)
