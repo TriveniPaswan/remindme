@@ -22,30 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!1b9evbjz8f^&d=qelt!0&1g5$((22$eo6gk1c7u#ppg$rp4#_'
 
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-
-
 ALLOWED_HOSTS = ["*"]
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
+
 
 # Application definition
 
@@ -86,7 +72,7 @@ ROOT_URLCONF = 'remindme.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+       'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,6 +85,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'remindme.wsgi.application'
+
+
+
 
 
 # Database
