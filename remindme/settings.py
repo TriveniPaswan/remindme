@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 #manual adding codes , # JWT Authentication Settings
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_yasg',
     'reminderapp',
 
 ]
